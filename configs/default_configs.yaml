@@ -1,0 +1,15 @@
+DataLoader:
+  BatchSize: 32
+  num_workers: 0
+  shuffle: True
+  Transforms: False
+
+Train:
+  Epoch: 10
+
+Model:
+  Pretrained: True
+
+Optimizer:
+  lr: 0.001
+  momentum: 0.9

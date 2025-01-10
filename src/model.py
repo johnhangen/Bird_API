@@ -1,6 +1,7 @@
 from torchvision.models import resnet50, ResNet50_Weights
 import torch.nn as nn
 import torch
+import wandb
 
 class BirdClassifierResNet(nn.Module):
     def __init__(self, num_classes, pretrained=True) -> None:
@@ -10,8 +11,10 @@ class BirdClassifierResNet(nn.Module):
             self.model = resnet50(weights=ResNet50_Weights.DEFAULT)
         else:
             self.model = resnet50()
+        wandb.watch(self.model, log_freq=100)
 
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
+        
 
     def forward(self, x):
         return self.model(x)

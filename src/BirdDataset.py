@@ -66,7 +66,12 @@ class BirdDataset(Dataset):
             self.path,
             self.bird_imgs[idx].img_path
         )
+
         image = io.imread(img_name)
+
+        if image.ndim == 3 and image.shape[2] == 4:
+            image = image[:, :, :3]
+
         label_name = self.bird_imgs[idx].class_name
         label = list(self.names.values()).index(label_name)
 

@@ -1,11 +1,11 @@
 DataLoader:
-  BatchSize: 32
+  BatchSize: 256
   num_workers: 0
   shuffle: True
   Transforms: False
 
 Train:
-  Epoch: 10
+  Epoch: 1
 
 Model:
   Pretrained: True

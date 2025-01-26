@@ -1,4 +1,5 @@
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import torch
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
@@ -21,9 +22,7 @@ class BirdDataset(Dataset):
         self.class_names = self._load_class_names()
         self.bird_imgs = self._load_image_paths()
 
-        # Preload images if enabled
         if self.preload_images:
-            print("Preloading images into RAM...")
             self.loaded_images = {obj.idx: self._load_image(obj.img_path) for obj in self.bird_imgs}
 
     def _load_class_names(self) -> dict:
@@ -75,16 +74,16 @@ def main():
     dataset = BirdDataset(
         path=r'data/nabirds/nabirds',
         transform=transform,
-        preload_images=True  # Enable preloading
+        preload_images=True
     )
 
     dataloader = DataLoader(
         dataset,
         batch_size=32,
         shuffle=True,
-        num_workers=os.cpu_count() - 1,  # Optimize worker count
+        num_workers=2,
         pin_memory=True,
-        persistent_workers=True  # Keep workers alive
+        persistent_workers=True
     )
 
     for i, (images, labels) in enumerate(dataloader):

@@ -21,7 +21,7 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             optimizer.zero_grad()
 
-            with autocast():
+            with autocast(device_type='cuda', dtype=torch.float16):
                 outputs = model(images)
                 loss = criterion(outputs, labels)
 

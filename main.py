@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch
 import wandb
+import torchvision
 
 def main():
     config = Config.load_config(
@@ -27,13 +28,13 @@ def main():
         mode="disabled",
     )
     
-    dataset = BirdDataset(
-                        path="/content/drive/MyDrive/Projects/data/nabirds/nabirds",
-                        transform = transforms.Compose([
+    dataset = torchvision.datasets.ImageFolder(
+      root='/content/drive/MyDrive/Projects/data/nabirds/nabirds/images',
+      transform=transforms.Compose([
                             transforms.Resize((224, 224)),
                             transforms.ToTensor()
                         ])
-                          )
+    )
     
     dataloader = DataLoader(
             dataset,
@@ -45,7 +46,7 @@ def main():
             )
     
     ResNet = BirdClassifierResNet(
-        num_classes=400,
+        num_classes=len(dataset.find_classes('/content/drive/MyDrive/Projects/data/nabirds/nabirds/images')[0]),
         pretrained=config.Model.Pretrained
     )
     ResNet = ResNet.to(device)

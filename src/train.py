@@ -29,14 +29,14 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             _, predicted = torch.max(outputs, 1)
             batch_correct = (predicted == labels).sum().item()
-            batch_accuracy = batch_correct / labels.size(0)
+            batch_size = labels.size(0)
 
             correct_predictions += batch_correct
             total_samples += labels.size(0)
 
             wandb.log(
                 {"batch_loss": loss.item(), 
-                 "batch_accuracy": batch_accuracy}
+                 "batch_accuracy": batch_correct/batch_size}
             )
             print(f"batch: {i_batch}, Loss: {loss.item()}")
 

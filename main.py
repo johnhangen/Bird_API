@@ -34,17 +34,18 @@ def main():
                             transforms.ToTensor()
                         ])
                           )
-
+    
     dataloader = DataLoader(
-                        dataset, 
-                        batch_size=config.DataLoader.BatchSize, 
-                        shuffle=config.DataLoader.shuffle,
-                        num_workers=config.DataLoader.num_workers,
-                        pin_memory=True
-                        )
+            dataset,
+            batch_size=32,
+            shuffle=True,
+            num_workers=config.DataLoader.num_workers,
+            pin_memory=True,
+            persistent_workers=True
+            )
     
     ResNet = BirdClassifierResNet(
-        num_classes=dataset.num_bird_class(),
+        num_classes=400,
         pretrained=config.Model.Pretrained
     )
     ResNet = ResNet.to(device)

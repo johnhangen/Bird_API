@@ -1,6 +1,6 @@
 DataLoader:
   BatchSize: 256
-  num_workers: 0
+  num_workers: 8
   shuffle: True
   Transforms: False
 

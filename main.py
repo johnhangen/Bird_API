@@ -1,4 +1,4 @@
-from src.BirdDataset import BirdDataset, Rescale, ToTensor
+from src.BirdDataset import BirdDataset
 from src.model import BirdClassifierResNet
 from src.train import train
 from src.test import test
@@ -29,17 +29,18 @@ def main():
     
     dataset = BirdDataset(
                         path="/content/drive/MyDrive/Projects/data/nabirds/nabirds",
-                        transform=transforms.Compose([
-                            Rescale(128),
-                            ToTensor()
-                            ])
+                        transform = transforms.Compose([
+                            transforms.Resize((224, 224)),
+                            transforms.ToTensor()
+                        ])
                           )
 
     dataloader = DataLoader(
                         dataset, 
                         batch_size=config.DataLoader.BatchSize, 
                         shuffle=config.DataLoader.shuffle,
-                        num_workers=config.DataLoader.num_workers
+                        num_workers=config.DataLoader.num_workers,
+                        pin_memory=True
                         )
     
     ResNet = BirdClassifierResNet(
@@ -51,7 +52,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(ResNet.parameters(), lr=config.Optimizer.lr, momentum=config.Optimizer.momentum)
 
-    ResNet.save(r'C:\Users\jthan\OneDrive\Desktop\2024\Projects\Bird_API\model')
+    ResNet.save(r'/content/Bird_API/model/ResNet.pt')
     
     ResNet = train(
                 model=ResNet,
@@ -69,7 +70,7 @@ def main():
                 config=config
                 )
     
-    ResNet.save()
+    ResNet.save(r'/content/Bird_API/model/ResNet.pt')
 
 
 if __name__ == "__main__":

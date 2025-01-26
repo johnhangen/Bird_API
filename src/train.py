@@ -2,10 +2,13 @@ from configs.config import Config
 
 import torch
 import wandb
+from torch.cuda.amp import autocast, GradScaler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(model, dataloader, criterion, optimizer, config: Config):
+    scaler = GradScaler()
+
     for epoch in range(config.Train.Epoch):
         model.train()
         total_loss = 0.0
@@ -18,22 +21,28 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             optimizer.zero_grad()
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            with autocast():
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+
             total_loss += loss.item()
 
             _, predicted = torch.max(outputs, 1)
-            correct_predictions += (predicted == labels).sum().item()
+            batch_correct = (predicted == labels).sum().item()
+            batch_accuracy = batch_correct / labels.size(0)
+
+            correct_predictions += batch_correct
             total_samples += labels.size(0)
 
             wandb.log(
                 {"batch_loss": loss.item(), 
-                 "batch_accuracy": correct_predictions / total_samples}
+                 "batch_accuracy": batch_accuracy}
             )
             print(f"batch: {i_batch}, Loss: {loss.item()}")
 
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
         average_loss = total_loss / len(dataloader)
         accuracy = correct_predictions / total_samples
@@ -46,5 +55,3 @@ def train(model, dataloader, criterion, optimizer, config: Config):
         print(f"epoch_accuracy: {accuracy}")
 
     return model
-
-

@@ -19,16 +19,16 @@ def main():
     torch.manual_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    wandb.init(
-        config={
-            "BatchSize": config.DataLoader.BatchSize,
-            "Epochs": config.Train.Epoch,
-            "Pretrained": config.Model.Pretrained,
-            "lr": config.Optimizer.lr,
-            "Momentum": config.Optimizer.momentum
-        },
-        mode="disabled",
-    )
+    if config.Train.WandB:
+        wandb.init(
+            config={
+                "BatchSize": config.DataLoader.BatchSize,
+                "Epochs": config.Train.Epoch,
+                "Pretrained": config.Model.Pretrained,
+                "lr": config.Optimizer.lr,
+                "Momentum": config.Optimizer.momentum
+            }
+        )
     
     #Create datasets
     dataset = torchvision.datasets.ImageFolder(
@@ -44,7 +44,7 @@ def main():
     )
     
     train_size = int(0.8 * len(dataset))
-    val_size = (len(dataset) - train_size)//2
+    val_size = (len(dataset) - train_size)//2 + 1
     test_size = (len(dataset) - train_size)//2
     dataset_sizes = {
         'train': train_size,
@@ -97,7 +97,7 @@ def main():
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(ResNet.parameters(), lr=config.Optimizer.lr, momentum=config.Optimizer.momentum)
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=config.Sch, gamma=0.1)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=config.Scheduler.step_size, gamma=config.Scheduler.gamma)
 
     ResNet.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
     

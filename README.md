@@ -42,9 +42,15 @@ python main.py
 
 We started with a pre-trained ResNet-50 model from ImageNet to take advantage of transfer learning and speed up training. ResNet-50 is a great choice because its deep architecture, powered by residual connections, helps with efficient feature learning and prevents vanishing gradients. We then fine-tuned the model on the NABirds dataset from Cornell, applying data augmentation to make it more robust. Training ran for 10 epochs on a T4 GPU, and we saw a steady improvement in accuracy with loss trending down—promising results for our first run!
 
-![Loss](img\loss.png)
 
-![Accuracy](img\acc.png)
+<p align="center">
+  <img src="img/loss.png" />
+</p>
+
+
+<p align="center">
+  <img src="img/acc.png" />
+</p>
 
 ## TODO
 

@@ -1,7 +1,6 @@
 import os
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-import torch
 from PIL import Image
+import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from dataclasses import dataclass
@@ -9,56 +8,60 @@ from dataclasses import dataclass
 @dataclass
 class BirdImgObj:
     img_path: str
-    img_label: int 
+    img_label: str
     class_name: str
     idx: int
 
 class BirdDataset(Dataset):
-    def __init__(self, path: str, transform=None, preload_images=False):
-        self.path = os.path.join(path, "images")
+    def __init__(self, path: str, transform=None):
+        self.path = path
         self.transform = transform
-        self.preload_images = preload_images
+        self.paths = {}
+        self.names = {}
+        self.bird_imgs = []
 
-        self.class_names = self._load_class_names()
-        self.bird_imgs = self._load_image_paths()
+        self._load_class_names()
+        self._load_image_paths()
+        
+        for i, img_path in enumerate(self.paths):
+            self.bird_imgs.append(
+                BirdImgObj(
+                    img_path=self.paths[img_path],
+                    img_label=img_path,
+                    class_name=self.names[str(int(self.paths[img_path].split('/')[0]))],
+                    idx=i
+                )
+            )
 
-        if self.preload_images:
-            self.loaded_images = {obj.idx: self._load_image(obj.img_path) for obj in self.bird_imgs}
+        del self.paths
+        self.path = os.path.join(self.path, 'images')
 
-    def _load_class_names(self) -> dict:
-        class_names = {}
-        with open(os.path.join(self.path, "../classes.txt")) as f:
+    def _load_class_names(self) -> None:
+        with open(os.path.join(self.path, 'classes.txt')) as f:
             for line in f:
-                class_id, *name = line.strip().split()
-                class_names[class_id] = " ".join(name)
-        return class_names
+                pieces = line.strip().split()
+                class_id = pieces[0]
+                self.names[class_id] = ' '.join(pieces[1:])
 
-    def _load_image_paths(self) -> list:
-        bird_imgs = []
-        with open(os.path.join(self.path, "../images.txt")) as f:
-            for idx, line in enumerate(f):
-                image_id, image_path = line.strip().split()
-                class_id = image_path.split("/")[0]
-                class_name = self.class_names.get(class_id, "Unknown")
-                bird_imgs.append(BirdImgObj(img_path=image_path, img_label=int(class_id), class_name=class_name, idx=idx))
-        return bird_imgs
-
-    def _load_image(self, img_name: str):
-        img_path = os.path.join(self.path, img_name)
-        return Image.open(img_path).convert("RGB") 
+    def _load_image_paths(self) -> None:
+        with open(os.path.join(self.path, 'images.txt')) as f:
+            for line in f:
+                pieces = line.strip().split()
+                image_id = pieces[0]
+                self.paths[image_id] = pieces[1]
 
     def __len__(self) -> int:
         return len(self.bird_imgs)
 
-    def __getitem__(self, idx: int):
-        bird_obj = self.bird_imgs[idx]
-        
-        if self.preload_images:
-            image = self.loaded_images[idx]
-        else:
-            image = self._load_image(bird_obj.img_path)
+    def num_bird_class(self) -> int:
+        return len(self.names)
 
-        label = bird_obj.img_label
+    def __getitem__(self, idx: int) -> tuple:
+        img_name = os.path.join(self.path, self.bird_imgs[idx].img_path)
+        image = Image.open(img_name).convert('RGB')
+
+        label_name = self.bird_imgs[idx].class_name
+        label = list(self.names.values()).index(label_name)
 
         if self.transform:
             image = self.transform(image)
@@ -72,22 +75,18 @@ def main():
     ])
 
     dataset = BirdDataset(
-        path=r'data/nabirds/nabirds',
-        transform=transform,
-        preload_images=True
+        path=r'data\nabirds\nabirds',
+        transform=transform
     )
 
-    dataloader = DataLoader(
-        dataset,
-        batch_size=32,
-        shuffle=True,
-        num_workers=2,
-        pin_memory=True,
-        persistent_workers=True
-    )
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=4, pin_memory=True)
 
     for i, (images, labels) in enumerate(dataloader):
-        print(f"Batch {i}: Images {images.shape}, Labels {labels.shape}")
+        print(labels)
+        print(f"Batch {i}:")
+        print(f" - Images shape: {images.shape}")
+        print(f" - Labels shape: {labels.shape}")
+        
         if i == 2:
             break
 

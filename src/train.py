@@ -9,6 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def train(model, dataloader, criterion, optimizer, config: Config):
 
     for epoch in range(config.Train.Epoch):
+        model.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
         model.train()
         total_loss = 0.0
         correct_predictions = 0

@@ -74,7 +74,6 @@ def main():
                 model=ResNet,
                 dataloader=dataloader,
                 criterion=criterion,
-                optimizer=optimizer,
                 config=config
                 )
     

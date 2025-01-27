@@ -5,7 +5,7 @@ DataLoader:
   Transforms: False
 
 Train:
-  Epoch: 1
+  Epoch: 10
 
 Model:
   Pretrained: True

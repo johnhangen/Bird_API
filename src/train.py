@@ -34,7 +34,10 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             wandb.log(
                 {"batch_loss": loss.item(), 
-                 "batch_accuracy": (batch_correct/batch_size)*100.0}
+                 "batch_accuracy": (batch_correct/batch_size)*100.0,
+                 "Number_correct": batch_correct,
+                 "Batch_size": batch_size
+                 }
             )
             print(f"batch: {i_batch}, Loss: {loss.item()}")
 

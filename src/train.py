@@ -2,57 +2,82 @@ from configs.config import Config
 
 import torch
 import wandb
-from torch.cuda.amp import autocast, GradScaler
+import time
+from torchmetrics.classification import MulticlassF1Score
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, config: Config):
+    since = time.time()
+    best_acc = 0.0
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train(model, dataloader, criterion, optimizer, config: Config):
+    num_classes = len(dataloaders['train'].dataset.classes)
+    f1_metric = MulticlassF1Score(num_classes=num_classes).to(device)
+
+    scaler = torch.amp.GradScaler()
 
     for epoch in range(config.Train.Epoch):
-        model.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
-        model.train()
-        total_loss = 0.0
-        correct_predictions = 0
-        total_samples = 0
+        print(f'Epoch {epoch}/{config.Train.Epoch - 1}')
+        print('-' * 10)
 
-        for i_batch, sample_batched in enumerate(dataloader):
-            images = sample_batched[0].to(device)
-            labels = sample_batched[1].to(device)
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                model.train()
+            else:
+                model.eval()
 
-            optimizer.zero_grad()
+            running_loss = 0.0
+            running_num_correct = 0.0
+            f1_metric.reset()
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            for images, label in dataloaders[phase]:
+                images = images.to(device)
+                label = label.to(device)
 
-            total_loss += loss.item()
+                optimizer.zero_grad()
 
-            _, predicted = torch.max(outputs, 1)
-            batch_correct = (predicted == labels).sum().item()
-            batch_size = labels.size(0)
+                with torch.set_grad_enabled(phase == 'train') and torch.autocast(device_type=device, dtype=torch.float16):
+                    outputs = model(images)
+                    assert outputs.dtype is torch.float16
 
-            correct_predictions += batch_correct
-            total_samples += labels.size(0)
+                    _, preds = torch.max(outputs, 1)
+                    loss = criterion(outputs, label)
+                    assert loss.dtype is torch.float32
 
-            wandb.log(
-                {"batch_loss": loss.item(), 
-                 "batch_accuracy": (batch_correct/batch_size)*100.0,
-                 "Number_correct": batch_correct,
-                 "Batch_size": batch_size
-                 }
-            )
-            print(f"batch: {i_batch}, Loss: {loss.item()}")
+                if phase == 'train':
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update() 
 
-            loss.backward()
-            optimizer.step()
+                running_loss += loss.item() * images.size(0)
+                running_num_correct += torch.sum(preds == label.data)
 
-        average_loss = total_loss / len(dataloader)
-        accuracy = correct_predictions / total_samples
-        wandb.log(
-            {"epoch_loss": average_loss, 
-             "epoch_accuracy": accuracy, 
-             "epoch": epoch + 1}
-        )
-        print(f"epoch: {epoch + 1}")
-        print(f"epoch_accuracy: {accuracy}")
+            if phase == 'train':
+                scheduler.step()
+
+            epoch_loss = running_loss / dataset_sizes[phase]
+            epoch_acc = running_num_correct.double() / dataset_sizes[phase]
+            epoch_f1 = f1_metric.compute()
+
+            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
+            if config.Train.WandB:
+                wandb.log(
+                    {
+                        "Epoch": epoch,
+                        "Phase": phase,
+                        "Loss": epoch_loss,
+                        "Accuracy": epoch_acc,
+                         "F1 Score": epoch_f1,
+                    })
+
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                model.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
+
+        time_elapsed = time.time() - since
+        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+        print(f'Best val Acc: {best_acc:4f}')
+
+        model.load(r'/content/drive/MyDrive/Projects/ResNet.pt')
 
     return model

@@ -6,6 +6,7 @@ DataLoader:
 
 Train:
   Epoch: 10
+  WandB: False
 
 Model:
   Pretrained: True
@@ -13,3 +14,7 @@ Model:
 Optimizer:
   lr: 0.001
   momentum: 0.9
+
+Scheduler:
+  step_size: 7
+  gamma: 0.1

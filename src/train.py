@@ -7,7 +7,6 @@ from torch.cuda.amp import autocast, GradScaler
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(model, dataloader, criterion, optimizer, config: Config):
-    scaler = GradScaler()
 
     for epoch in range(config.Train.Epoch):
         model.train()
@@ -21,9 +20,8 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             optimizer.zero_grad()
 
-            with autocast(device_type='cuda', dtype=torch.float16):
-                outputs = model(images)
-                loss = criterion(outputs, labels)
+            outputs = model(images)
+            loss = criterion(outputs, labels)
 
             total_loss += loss.item()
 
@@ -36,13 +34,12 @@ def train(model, dataloader, criterion, optimizer, config: Config):
 
             wandb.log(
                 {"batch_loss": loss.item(), 
-                 "batch_accuracy": batch_correct/batch_size}
+                 "batch_accuracy": (batch_correct/batch_size)*100.0}
             )
             print(f"batch: {i_batch}, Loss: {loss.item()}")
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            loss.backward()
+            optimizer.step()
 
         average_loss = total_loss / len(dataloader)
         accuracy = correct_predictions / total_samples

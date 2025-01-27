@@ -19,16 +19,16 @@ def main():
     torch.manual_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    if config.Train.WandB:
-        wandb.init(
-            config={
-                "BatchSize": config.DataLoader.BatchSize,
-                "Epochs": config.Train.Epoch,
-                "Pretrained": config.Model.Pretrained,
-                "lr": config.Optimizer.lr,
-                "Momentum": config.Optimizer.momentum
-            }
-        )
+    wandb.init(
+        config={
+            "BatchSize": config.DataLoader.BatchSize,
+            "Epochs": config.Train.Epoch,
+            "Pretrained": config.Model.Pretrained,
+            "lr": config.Optimizer.lr,
+            "Momentum": config.Optimizer.momentum
+        },
+        mode="disabled",
+    )
     
     #Create datasets
     dataset = torchvision.datasets.ImageFolder(

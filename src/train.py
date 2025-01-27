@@ -2,6 +2,7 @@ from configs.config import Config
 import torch
 import wandb
 import time
+from tqdm import tqdm
 from torchmetrics.classification import MulticlassF1Score
 
 def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, config: Config):
@@ -28,7 +29,7 @@ def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, co
             running_num_correct = 0
             f1_metric.reset()
 
-            for images, labels in dataloaders[phase]:
+            for images, labels in tqdm(dataloaders[phase]):
                 images = images.to(device)
                 labels = labels.to(device)
 

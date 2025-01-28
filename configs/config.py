@@ -7,11 +7,14 @@ class DataLoaderConfig:
   num_workers: int = 4
   shuffle: bool = True
   Transforms: bool = False
-  Path: str = r'data\nabirds\nabirds'
+  Path: str = '/content/drive/MyDrive/Projects/data/nabirds/nabirds/images'
+  deepLake: bool = True
 
 @dataclass
 class ModelConfig:
     Pretrained: bool = True
+    Debug: bool = False
+    Path: str = '/content/drive/MyDrive/Projects/ResNet.pt'
 
 @dataclass
 class TrainConfig:

@@ -12,15 +12,17 @@ import wandb
 import torchvision
 import deeplake
 
-print(torch.cuda.is_available())
-print(torch.cuda.device_count())
-print(torch.cuda.current_device())
-print(torch.cuda.get_device_name(0)) 
 
 def main():
     config = Config.load_config(
         "/content/Bird_API/configs/default_configs.yaml"
         )
+    
+    if config.Model.Debug:
+        print(torch.cuda.is_available())
+        print(torch.cuda.device_count())
+        print(torch.cuda.current_device())
+        print(torch.cuda.get_device_name(0)) 
     
     torch.manual_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,14 +37,8 @@ def main():
         },
         mode="disabled",
     )
-    
-    #Create datasets
-    #dataset = torchvision.datasets.ImageFolder(
-    #  root='/content/drive/MyDrive/Projects/data/nabirds/nabirds/images',
-    #  transform=
-    #)
-
     train_transform = transforms.Compose([
+                            transforms.ToPILImage(mode="RGB"),
                             transforms.RandomHorizontalFlip(),
                             transforms.RandomRotation(10),
                             transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
@@ -52,77 +48,117 @@ def main():
                         ])
     
     val_transform = transforms.Compose([
+                            transforms.ToPILImage(mode="RGB"),
                             transforms.Resize((224, 224)),
                             transforms.ToTensor(),
                             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                         ])
-    
-    #train_size = int(0.8 * len(dataset))
-    #val_size = (len(dataset) - train_size)//2 + 1
-    #test_size = (len(dataset) - train_size)//2
 
 
-    #train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
-    
-    train_dataset = deeplake.load('hub://activeloop/nabirds-dataset-train')
-    val_dataset = deeplake.load('hub://activeloop/nabirds-dataset-val')
-    dataset_sizes = {
-        'train': len(train_dataset),
-        'val': len(val_dataset),
-    }
+    if config.DataLoader.deepLake:
+        train_dataset = deeplake.load('hub://activeloop/nabirds-dataset-train')
+        val_dataset = deeplake.load('hub://activeloop/nabirds-dataset-val')
 
-    train_dataloader = DataLoader(
-            train_dataset,
-            transforms=train_transform,
-            batch_size=config.DataLoader.BatchSize,
-            shuffle=True,
-            num_workers=config.DataLoader.num_workers,
-            pin_memory=True,
-            prefetch_factor=4,
-            persistent_workers=True
-            )
-    
-    val_dataloader = DataLoader(
-            val_dataset,
-            transforms=val_transform,
-            batch_size=config.DataLoader.BatchSize,
-            shuffle=True,
-            num_workers=config.DataLoader.num_workers,
-            pin_memory=True,
-            prefetch_factor=4,
-            persistent_workers=True
-            )
-    
-    dataloaders = {
-        'train': train_dataloader,
-        'val': val_dataloader
-    }
+        dataset_sizes = {
+            'train': len(train_dataset),
+            'val': len(val_dataset),
+        }
+
+        train_dataloader = train_dataset.pytorch(
+                transform ={'images': train_transform, 'labels': None},
+                batch_size=config.DataLoader.BatchSize,
+                shuffle=True,
+                num_workers=config.DataLoader.num_workers,
+                pin_memory=True,
+                prefetch_factor=4, 
+                decode_method = {"images":"numpy"}
+                )
+        
+        val_dataloader = val_dataset.pytorch(
+                transform ={'images': val_transform, 'labels': None},
+                batch_size=config.DataLoader.BatchSize,
+                shuffle=True,
+                num_workers=config.DataLoader.num_workers,
+                pin_memory=True,
+                prefetch_factor=4, 
+                decode_method = {"images":"numpy"}
+                )
+        
+        dataloaders = {
+            'train': train_dataloader,
+            'val': val_dataloader
+        }
+    else:
+        dataset = torchvision.datasets.ImageFolder(
+        root=config.DataLoader.Path,
+        transform=transforms.Compose([
+                                transforms.RandomHorizontalFlip(),
+                                transforms.RandomRotation(10),
+                                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+                                transforms.Resize((224, 224)),
+                                transforms.ToTensor(),
+                                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                            ])
+        )
+        
+        train_size = int(0.8 * len(dataset))
+        val_size = len(dataset) - train_size
+        dataset_sizes = {
+            'train': train_size,
+            'val': val_size
+        }
+
+        train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+        
+        train_dataloader = DataLoader(
+                train_dataset,
+                batch_size=config.DataLoader.BatchSize,
+                shuffle=True,
+                num_workers=config.DataLoader.num_workers,
+                pin_memory=True,
+                persistent_workers=True
+                )
+        
+        val_dataloader = DataLoader(
+                val_dataset,
+                batch_size=config.DataLoader.BatchSize,
+                shuffle=True,
+                num_workers=config.DataLoader.num_workers,
+                pin_memory=True,
+                persistent_workers=True
+                )
+        
+        dataloaders = {
+            'train': train_dataloader,
+            'val': val_dataloader
+            }
     
     # model
     ResNet = BirdClassifierResNet(
         num_classes=555,
         pretrained=config.Model.Pretrained
     )
-    ResNet.load(r'/content/drive/MyDrive/Projects/ResNet.pt')
+    ResNet.load(config.Model.Path)
     ResNet = ResNet.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(ResNet.parameters(), lr=config.Optimizer.lr, momentum=config.Optimizer.momentum)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=config.Scheduler.step_size, gamma=config.Scheduler.gamma)
 
-    ResNet.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
+    ResNet.save(config.Model.Path)
     
     ResNet = train(
                 model=ResNet,
                 dataloaders=dataloaders,
                 dataset_sizes=dataset_sizes,
+                trainset=train_dataset,
                 criterion=criterion,
                 optimizer=optimizer,
                 scheduler=scheduler,
                 config=config
                 )
     
-    ResNet.save(r'/content/drive/MyDrive/Projects/ResNet.pt')
+    ResNet.save(config.Model.Path)
 
 if __name__ == "__main__":
     main()

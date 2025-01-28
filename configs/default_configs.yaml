@@ -3,6 +3,8 @@ DataLoader:
   num_workers: 8
   shuffle: True
   Transforms: False
+  Path: '/content/drive/MyDrive/Projects/data/nabirds/nabirds/images'
+  deepLake: True
 
 Train:
   Epoch: 10
@@ -10,6 +12,8 @@ Train:
 
 Model:
   Pretrained: True
+  Debug: False
+  Path: '/content/drive/MyDrive/Projects/ResNet.pt'
 
 Optimizer:
   lr: 0.001

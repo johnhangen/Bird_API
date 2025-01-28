@@ -5,7 +5,15 @@ import time
 from tqdm import tqdm
 from torchmetrics.classification import MulticlassF1Score
 
-def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, config: Config):
+def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, scheduler, config: Config):
+    if config.DataLoader.deepLake:
+        deeplake_classes = set([int(cls) for cls in trainset.labels.numpy()])
+        cls_to_idx = {}
+        i=0
+        for cls in deeplake_classes:
+            cls_to_idx[cls] = i
+            i+=1
+
     since = time.time()
     best_acc = 0.0
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,6 +40,8 @@ def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, co
             for images, labels in tqdm(dataloaders[phase]):
                 images = images.to(device)
                 labels = labels.to(device)
+                if config.DataLoader.deepLake:
+                    labels = torch.tensor([torch.tensor(cls_to_idx[cls.item()]).to(device) for cls in labels]).to(device)
 
                 optimizer.zero_grad()
 
@@ -71,12 +81,12 @@ def train(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, co
 
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
-                torch.save(model.state_dict(), r'/content/drive/MyDrive/Projects/ResNet.pt')
+                torch.save(model.state_dict(), config.Model.Path)
 
         time_elapsed = time.time() - since
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
         print(f'Best val Acc: {best_acc:.4f}')
 
-        model.load_state_dict(torch.load(r'/content/drive/MyDrive/Projects/ResNet.pt'))
+        model.load_state_dict(torch.load(config.Model.Path))
 
     return model

@@ -5,6 +5,9 @@ DataLoader:
   Transforms: False
   Path: '/content/drive/MyDrive/Projects/data/nabirds/nabirds/images'
   deepLake: True
+  shuffle: True
+  pin_memory: False
+  persistent_workers: False
 
 Train:
   Epoch: 10

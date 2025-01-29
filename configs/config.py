@@ -9,6 +9,9 @@ class DataLoaderConfig:
   Transforms: bool = False
   Path: str = '/content/drive/MyDrive/Projects/data/nabirds/nabirds/images'
   deepLake: bool = True
+  shuffle: bool = True
+  pin_memory: bool = False
+  persistent_workers: bool = False
 
 @dataclass
 class ModelConfig:

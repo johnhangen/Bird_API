@@ -67,9 +67,9 @@ def main():
         train_dataloader = train_dataset.pytorch(
                 transform ={'images': train_transform, 'labels': None},
                 batch_size=config.DataLoader.BatchSize,
-                shuffle=True,
+                shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
-                pin_memory=True,
+                pin_memory=config.DataLoader.pin_memory,
                 prefetch_factor=4, 
                 decode_method = {"images":"numpy"}
                 )
@@ -77,9 +77,9 @@ def main():
         val_dataloader = val_dataset.pytorch(
                 transform ={'images': val_transform, 'labels': None},
                 batch_size=config.DataLoader.BatchSize,
-                shuffle=True,
+                shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
-                pin_memory=True,
+                pin_memory=config.DataLoader,
                 prefetch_factor=4, 
                 decode_method = {"images":"numpy"}
                 )
@@ -113,19 +113,19 @@ def main():
         train_dataloader = DataLoader(
                 train_dataset,
                 batch_size=config.DataLoader.BatchSize,
-                shuffle=True,
+                shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
-                pin_memory=True,
-                persistent_workers=True
+                pin_memory=config.DataLoader.pin_memory,
+                persistent_workers=config.DataLoader.persistent_workers
                 )
         
         val_dataloader = DataLoader(
                 val_dataset,
                 batch_size=config.DataLoader.BatchSize,
-                shuffle=True,
+                shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
-                pin_memory=True,
-                persistent_workers=True
+                pin_memory=config.DataLoader.pin_memory,
+                persistent_workers=config.DataLoader.persistent_workers
                 )
         
         dataloaders = {

@@ -35,13 +35,13 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
 
             running_loss = 0.0
             running_num_correct = 0
-            f1_metric.reset()
 
             for images, labels in tqdm(dataloaders[phase]):
                 images = images.to(device)
                 labels = labels.to(device)
                 if config.DataLoader.deepLake:
-                    labels = torch.tensor([torch.tensor(cls_to_idx[cls.item()]).to(device) for cls in labels]).to(device)
+                    labels = torch.tensor([cls_to_idx[cls.item()] for cls in labels], dtype=torch.long, device=device)
+
 
                 optimizer.zero_grad()
 
@@ -54,6 +54,7 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
                     scaler.scale(loss).backward()
                     scaler.step(optimizer)
                     scaler.update()
+                    torch.cuda.empty_cache()
 
                 running_loss += loss.item() * images.size(0)
                 running_num_correct += torch.sum(preds == labels).item()
@@ -83,10 +84,10 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
                 best_acc = epoch_acc
                 torch.save(model.state_dict(), config.Model.Path)
 
-        time_elapsed = time.time() - since
-        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
-        print(f'Best val Acc: {best_acc:.4f}')
+    time_elapsed = time.time() - since
+    print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+    print(f'Best val Acc: {best_acc:.4f}')
 
-        model.load_state_dict(torch.load(config.Model.Path))
+    model.load_state_dict(torch.load(config.Model.Path))
 
     return model

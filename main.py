@@ -38,7 +38,6 @@ def main():
         mode="disabled",
     )
     train_transform = transforms.Compose([
-                            transforms.ToPILImage(mode="RGB"),
                             transforms.RandomHorizontalFlip(),
                             transforms.RandomRotation(10),
                             transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
@@ -48,7 +47,6 @@ def main():
                         ])
     
     val_transform = transforms.Compose([
-                            transforms.ToPILImage(mode="RGB"),
                             transforms.Resize((224, 224)),
                             transforms.ToTensor(),
                             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -70,8 +68,8 @@ def main():
                 shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
                 pin_memory=config.DataLoader.pin_memory,
-                prefetch_factor=4, 
-                decode_method = {"images":"numpy"}
+                prefetch_factor=1, 
+                decode_method = {"images":"pil"}
                 )
         
         val_dataloader = val_dataset.pytorch(
@@ -80,8 +78,8 @@ def main():
                 shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
                 pin_memory=config.DataLoader.pin_memory,
-                prefetch_factor=4, 
-                decode_method = {"images":"numpy"}
+                prefetch_factor=1, 
+                decode_method = {'images': 'pil'}
                 )
         
         dataloaders = {

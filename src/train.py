@@ -8,11 +8,7 @@ from torchmetrics.classification import MulticlassF1Score
 def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, scheduler, config: Config):
     if config.DataLoader.deepLake:
         deeplake_classes = set([int(cls) for cls in trainset.labels.numpy()])
-        cls_to_idx = {}
-        i=0
-        for cls in deeplake_classes:
-            cls_to_idx[cls] = i
-            i+=1
+        cls_to_idx = {cls: i for i, cls in enumerate(sorted(deeplake_classes))}
 
     since = time.time()
     best_acc = 0.0
@@ -43,7 +39,6 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
                 if config.DataLoader.deepLake:
                     labels = torch.tensor([cls_to_idx[cls.item()] for cls in labels.cpu()], dtype=torch.long, device=device)
 
-
                 optimizer.zero_grad()
 
                 with torch.amp.autocast(device_type="cuda", dtype=torch.float16) if phase == 'train' else torch.no_grad():
@@ -63,13 +58,13 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
 
             if phase == 'train':
                 scheduler.step()
-                torch.cuda.empty_cache()
+                
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_num_correct / dataset_sizes[phase]
             epoch_f1 = f1_metric.compute().item()
 
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} F1: {epoch_f1:.4f}')
+            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} F1: {epoch_f1:.4f} Time: {time.time() - since}')
 
             if config.Train.WandB:
                 wandb.log(
@@ -85,6 +80,8 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 torch.save(model.state_dict(), config.Model.Path)
+
+        torch.cuda.empty_cache()
 
     time_elapsed = time.time() - since
     print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')

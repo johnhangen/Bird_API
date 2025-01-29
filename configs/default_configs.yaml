@@ -1,11 +1,11 @@
 DataLoader:
   BatchSize: 256
-  num_workers: 1
+  num_workers: 8
   shuffle: True
   Transforms: False
   Path: '/content/drive/MyDrive/Projects/data/nabirds/nabirds/images'
   deepLake: True
-  shuffle: True
+  shuffle: False
   pin_memory: False
   persistent_workers: False
 

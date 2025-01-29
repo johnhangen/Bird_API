@@ -136,7 +136,7 @@ def main():
         num_classes=555,
         pretrained=config.Model.Pretrained
     )
-    ResNet.load(config.Model.Path)
+    #ResNet.load(config.Model.Path)
     ResNet = ResNet.to(device)
 
     criterion = nn.CrossEntropyLoss()

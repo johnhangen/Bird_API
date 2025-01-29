@@ -26,6 +26,7 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
     for epoch in range(config.Train.Epoch):
         print(f'Epoch {epoch}/{config.Train.Epoch - 1}')
         print('-' * 10)
+        f1_metric.reset()
 
         for phase in ['train', 'val']:
             if phase == 'train':
@@ -40,12 +41,12 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
                 images = images.to(device)
                 labels = labels.to(device)
                 if config.DataLoader.deepLake:
-                    labels = torch.tensor([cls_to_idx[cls.item()] for cls in labels], dtype=torch.long, device=device)
+                    labels = torch.tensor([cls_to_idx[cls.item()] for cls in labels.cpu()], dtype=torch.long, device=device)
 
 
                 optimizer.zero_grad()
 
-                with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
+                with torch.amp.autocast(device_type="cuda", dtype=torch.float16) if phase == 'train' else torch.no_grad():
                     outputs = model(images)
                     _, preds = torch.max(outputs, 1)
                     loss = criterion(outputs, labels)
@@ -54,14 +55,15 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
                     scaler.scale(loss).backward()
                     scaler.step(optimizer)
                     scaler.update()
-                    torch.cuda.empty_cache()
 
                 running_loss += loss.item() * images.size(0)
                 running_num_correct += torch.sum(preds == labels).item()
-                f1_metric.update(preds, labels)
+                f1_metric.update(preds.detach(), labels.detach())
+
 
             if phase == 'train':
                 scheduler.step()
+                torch.cuda.empty_cache()
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_num_correct / dataset_sizes[phase]

@@ -1,0 +1,16 @@
+{"time":"2025-01-08T13:24:24.3661021-05:00","level":"INFO","msg":"using version","core version":"0.19.1"}
+{"time":"2025-01-08T13:24:24.3661021-05:00","level":"INFO","msg":"created symlink","path":"C:\\Users\\jthan\\OneDrive\\Desktop\\2024\\Projects\\Bird_API\\wandb\\run-20250108_132424-ehh9id0z\\logs\\debug-core.log"}
+{"time":"2025-01-08T13:24:25.5798219-05:00","level":"INFO","msg":"created new stream","id":"ehh9id0z"}
+{"time":"2025-01-08T13:24:25.5799284-05:00","level":"INFO","msg":"stream: started","id":"ehh9id0z"}
+{"time":"2025-01-08T13:24:25.5799284-05:00","level":"INFO","msg":"handler: started","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:24:25.5799284-05:00","level":"INFO","msg":"sender: started","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:24:25.5799284-05:00","level":"INFO","msg":"writer: Do: started","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:24:25.9273662-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-01-08T13:58:50.6763879-05:00","level":"INFO","msg":"stream: closing","id":"ehh9id0z"}
+{"time":"2025-01-08T13:58:50.6763879-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-01-08T13:58:50.6779436-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-01-08T13:58:51.1030685-05:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-01-08T13:58:51.3625846-05:00","level":"INFO","msg":"handler: closed","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:58:51.3625846-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:58:51.3625846-05:00","level":"INFO","msg":"sender: closed","stream_id":"ehh9id0z"}
+{"time":"2025-01-08T13:58:51.3625846-05:00","level":"INFO","msg":"stream: closed","id":"ehh9id0z"}

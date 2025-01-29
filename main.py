@@ -79,7 +79,7 @@ def main():
                 batch_size=config.DataLoader.BatchSize,
                 shuffle=config.DataLoader.shuffle,
                 num_workers=config.DataLoader.num_workers,
-                pin_memory=config.DataLoader,
+                pin_memory=config.DataLoader.pin_memory,
                 prefetch_factor=4, 
                 decode_method = {"images":"numpy"}
                 )

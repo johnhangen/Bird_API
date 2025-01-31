@@ -11,7 +11,7 @@ DataLoader:
 
 Train:
   Epoch: 10
-  WandB: False
+  WandB: True
 
 Model:
   Pretrained: True

@@ -15,7 +15,7 @@ import deeplake
 
 def main():
     config = Config.load_config(
-        "/content/Bird_API/configs/default_configs.yaml"
+        "/Bird_API/configs/default_configs.yaml"
         )
     
     if config.Model.Debug:

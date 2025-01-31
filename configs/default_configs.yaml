@@ -3,7 +3,7 @@ DataLoader:
   num_workers: 8
   shuffle: True
   Transforms: False
-  Path: '/workspace'
+  Path: '/workspace/'
   deepLake: False
   shuffle: False
   pin_memory: False

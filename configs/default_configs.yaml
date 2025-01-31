@@ -1,10 +1,10 @@
 DataLoader:
-  BatchSize: 512
+  BatchSize: 256
   num_workers: 8
   shuffle: True
   Transforms: False
   Path: '/workspace'
-  deepLake: True
+  deepLake: False
   shuffle: False
   pin_memory: False
   persistent_workers: False

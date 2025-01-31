@@ -16,7 +16,7 @@ Train:
 Model:
   Pretrained: True
   Debug: False
-  Path: '/content/drive/MyDrive/Projects/ResNet.pt'
+  Path: 'ResNet.pt'
 
 Optimizer:
   lr: 0.001

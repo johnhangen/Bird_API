@@ -1,5 +1,5 @@
 DataLoader:
-  BatchSize: 256
+  BatchSize: 64
   num_workers: 8
   shuffle: True
   Transforms: False
@@ -10,7 +10,7 @@ DataLoader:
   persistent_workers: False
 
 Train:
-  Epoch: 10
+  Epoch: 30
   WandB: True
 
 Model:
@@ -19,9 +19,9 @@ Model:
   Path: 'ResNet.pt'
 
 Optimizer:
-  lr: 0.001
+  lr: 0.0005
   momentum: 0.9
 
 Scheduler:
-  step_size: 7
+  step_size: 15
   gamma: 0.1

@@ -35,7 +35,7 @@ def main():
             "lr": config.Optimizer.lr,
             "Momentum": config.Optimizer.momentum
         },
-        mode="disabled",
+        #mode="disabled",
     )
     train_transform = transforms.Compose([
                             transforms.RandomHorizontalFlip(),

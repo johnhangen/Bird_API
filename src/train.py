@@ -67,15 +67,24 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} F1: {epoch_f1:.4f} Time: {time.time() - since}')
 
             if config.Train.WandB:
-                wandb.log(
-                    {
-                        "Epoch": epoch,
-                        "Phase": phase,
-                        "Loss": epoch_loss,
-                        "Accuracy": epoch_acc,
-                        "F1 Score": epoch_f1,
-                    }
-                )
+                if phase == 'train':
+                    wandb.log(
+                        {
+                            "train Epoch": epoch,
+                            "train Loss": epoch_loss,
+                            "train Accuracy": epoch_acc,
+                            "train F1 Score": epoch_f1,
+                        }
+                    )
+                if phase == 'val':
+                    wandb.log(
+                        {
+                            "val Epoch": epoch,
+                            "val Loss": epoch_loss,
+                            "val Accuracy": epoch_acc,
+                            "val F1 Score": epoch_f1,
+                        }
+                    )
 
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc

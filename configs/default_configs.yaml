@@ -1,5 +1,5 @@
 DataLoader:
-  BatchSize: 64
+  BatchSize: 512
   num_workers: 8
   shuffle: True
   Transforms: False
@@ -10,7 +10,7 @@ DataLoader:
   persistent_workers: False
 
 Train:
-  Epoch: 30
+  Epoch: 60
   WandB: True
 
 Model:
@@ -23,5 +23,5 @@ Optimizer:
   momentum: 0.9
 
 Scheduler:
-  step_size: 15
+  step_size: 30
   gamma: 0.1

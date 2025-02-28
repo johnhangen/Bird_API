@@ -1,4 +1,4 @@
-from torchvision.models import resnet50, ResNet50_Weights
+from torchvision.models import resnet152, ResNet152_Weights
 import torch.nn as nn
 import torch
 import wandb
@@ -8,9 +8,9 @@ class BirdClassifierResNet(nn.Module):
         super(BirdClassifierResNet, self).__init__()
         
         if pretrained:
-            self.model = resnet50(weights=ResNet50_Weights.DEFAULT)
+            self.model = resnet152(weights=ResNet152_Weights.DEFAULT)
         else:
-            self.model = resnet50()
+            self.model = resnet152()
         wandb.watch(self.model, log_freq=100)
 
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)

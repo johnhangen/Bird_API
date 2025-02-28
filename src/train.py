@@ -53,12 +53,7 @@ def train(model, dataloaders, trainset, dataset_sizes, criterion, optimizer, sch
 
                 running_loss += loss.item() * images.size(0)
                 running_num_correct += torch.sum(preds == labels).item()
-                f1_metric.update(preds.detach(), labels.detach())
-
-
-            if phase == 'train':
-                scheduler.step()
-                
+                f1_metric.update(preds.detach(), labels.detach())                
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_num_correct / dataset_sizes[phase]

@@ -49,7 +49,7 @@ We started with a pre-trained ResNet-50 model from ImageNet to take advantage of
 
 
 <p align="center">
-  <img src="img/acc.png" />
+  <img src="img/f1.png" />
 </p>
 
 ## TODO

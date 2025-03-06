@@ -140,8 +140,7 @@ def main():
     ResNet = ResNet.to(device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(ResNet.parameters(), lr=config.Optimizer.lr, momentum=config.Optimizer.momentum)
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=config.Scheduler.step_size, gamma=config.Scheduler.gamma)
+    optimizer = optim.adamw(ResNet.parameters(), lr=config.Optimizer.lr)
 
     ResNet.save(config.Model.Path)
     
@@ -152,7 +151,7 @@ def main():
                 trainset=train_dataset,
                 criterion=criterion,
                 optimizer=optimizer,
-                scheduler=scheduler,
+                scheduler=None,
                 config=config
                 )
     

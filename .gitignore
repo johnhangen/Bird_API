@@ -1,3 +1,2 @@
 data/
-src/__pychache__/
-configs/__pychache__/
+**/__pycache__/

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Classifier API</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f8f9fa;
+            --text-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        section {
+            background: white;
+            padding: 3rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .methodology-item {
+            padding: 1.5rem;
+            background: var(--background-color);
+            border-radius: 6px;
+        }
+        
+        .results-container img {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            section {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Bird Classifier API</h1>
+            <p class="subtitle">A Deep Learning Solution for Bird Species Classification</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="motivation">
+            <h2>Project Motivation</h2>
+            <p>This project aims to create a robust and accurate bird species classification system using deep learning. The goal is to provide an accessible API that can identify bird species from images, making it valuable for ornithologists, bird watchers, and nature enthusiasts.</p>
+        </section>
+
+        <section id="technical-approach">
+            <h2>Technical Approach</h2>
+            <div class="methodology-grid">
+                <div class="methodology-item">
+                    <h3>Model Architecture</h3>
+                    <p>Built on ResNet-50, leveraging its deep architecture and residual connections for efficient feature learning and gradient flow.</p>
+                </div>
+                <div class="methodology-item">
+                    <h3>Transfer Learning</h3>
+                    <p>Utilized pre-trained weights from ImageNet to bootstrap the learning process and achieve better generalization.</p>
+                </div>
+                <div class="methodology-item">
+                    <h3>Data Processing</h3>
+                    <p>Implemented robust data augmentation including random flips, rotations, and color jittering to enhance model robustness.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="training">
+            <h2>Training Process</h2>
+            <p>The model was trained on the NABirds dataset from Cornell, which contains a comprehensive collection of North American bird species. Key training details include:</p>
+            <ul>
+                <li>Training performed on T4 GPU</li>
+                <li>10 epochs of training with adaptive learning rate</li>
+                <li>Batch size optimization for memory efficiency</li>
+                <li>Weights & Biases integration for experiment tracking</li>
+            </ul>
+        </section>
+
+        <section id="api">
+            <h2>API Implementation</h2>
+            <p>The model is served through a FastAPI-based REST API, providing:</p>
+            <ul>
+                <li>Simple endpoint for image inference</li>
+                <li>Health check endpoint for monitoring</li>
+                <li>Efficient image processing pipeline</li>
+                <li>Scalable architecture ready for deployment</li>
+            </ul>
+        </section>
+
+        <section id="results" class="results-container">
+            <h2>Results</h2>
+            <p>The training process showed promising results with steady improvements in accuracy and consistent loss reduction. The model demonstrates robust performance across various bird species, with particular strength in distinguishing similar-looking species.</p>
+            <img src="img/loss.png" alt="Training Loss Graph">
+            <img src="img/f1.png" alt="F1 Score Graph">
+        </section>
+    </div>
+</body>
+</html> 
